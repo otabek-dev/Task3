@@ -20,11 +20,13 @@ namespace Task3
     {
         private string[] moves;
         private byte[] key;
+        private View view;
 
         public Game(string[] moves)
         {
             this.moves = moves;
             this.key = CryptoGenerator.GenerateKey(256);
+            this.view = new View(moves);
         }
 
         public void Start()
@@ -33,7 +35,7 @@ namespace Task3
             var hmac = CryptoGenerator.GenerateHMAC(moves[computerMove], key);
 
             Console.WriteLine($"HMAC: {hmac}");
-            PrintMenu();
+            view.PrintMenu();
             
             var userMove = GetUserMove();
 
@@ -41,17 +43,8 @@ namespace Task3
             Console.WriteLine($"Computer move: {moves[computerMove]}");
             Console.WriteLine($"Key: {BitConverter.ToString(key).Replace("-", "")}");
 
-            GameRules.DetermineWinner(userMove, computerMove, moves);
-        }
-
-        private void PrintMenu()
-        {
-            Console.WriteLine("Available moves:");
-            for (int i = 0; i < moves.Length; i++)
-                Console.WriteLine($"{i + 1} - {moves[i]}");
-
-            Console.WriteLine("0 - Exit");
-            Console.WriteLine("? - help");
+            var result = GameRules.DetermineWinner(userMove, computerMove, moves);
+            View.PrintResult(result);
         }
 
         private int GetUserMove()
@@ -65,6 +58,9 @@ namespace Task3
 
                 if (int.TryParse(tryParse, out userMove) && userMove >= 0 && userMove <= moves.Length)
                     break;
+
+                if (tryParse == "?")
+                    view.PrintTable();
 
                 Console.WriteLine("Invalid input. Please enter a valid move number.");
             }
