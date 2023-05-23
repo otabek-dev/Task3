@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace Task3
+﻿namespace Task3
 {
     public class Program
     {
@@ -11,70 +9,22 @@ namespace Task3
                 Console.WriteLine("Invalid arguments.\nPlease restart the program with valid arguments!");
                 return;
             }
+
+            var duplicates = args.GroupBy(x => x)
+              .Where(g => g.Count() > 1)
+              .Select(y => y.Key)
+              .ToList();
+            
+            if (duplicates.Count > 0)
+            {
+                Console.WriteLine($"Invalid arguments.");
+                Console.WriteLine($"The arguments have duplicates ({string.Join(", ", duplicates)})");
+                Console.WriteLine("Please pass the arguments without duplicates!");
+                return;
+            }
+
             var game = new Game(args);
             game.Start();
-        }
-    }
-
-    public class Game
-    {
-        private string[] moves;
-        private byte[] key;
-        private View view;
-
-        public Game(string[] moves)
-        {
-            this.moves = moves;
-            this.key = CryptoGenerator.GenerateKey(256);
-            this.view = new View(moves);
-        }
-
-        public void Start()
-        {
-            var computerMove = GenerateComputerMove();
-            var hmac = CryptoGenerator.GenerateHMAC(moves[computerMove], key);
-
-            Console.WriteLine($"HMAC: {hmac}");
-            view.PrintMenu();
-            
-            var userMove = GetUserMove();
-
-            Console.WriteLine($"Your move: {moves[userMove]}");
-            Console.WriteLine($"Computer move: {moves[computerMove]}");
-            Console.WriteLine($"Key: {BitConverter.ToString(key).Replace("-", "")}");
-
-            var result = GameRules.DetermineWinner(userMove, computerMove, moves);
-            View.PrintResult(result);
-        }
-
-        private int GetUserMove()
-        {
-            int userMove;
-            while (true)
-            {
-                Console.Write("Enter your move: ");
-
-                var tryParse = Console.ReadLine();
-
-                if (int.TryParse(tryParse, out userMove) && userMove >= 0 && userMove <= moves.Length)
-                    break;
-
-                if (tryParse == "?")
-                    view.PrintTable();
-
-                Console.WriteLine("Invalid input. Please enter a valid move number.");
-            }
-            return userMove - 1;
-        }
-
-        private int GenerateComputerMove()
-        {
-            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-            {
-                var randomNumber = new byte[1];
-                rng.GetBytes(randomNumber);
-                return randomNumber[0] % moves.Length;
-            }
         }
     }
 }
