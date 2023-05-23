@@ -13,9 +13,6 @@ namespace Task3
             }
             var game = new Game(args);
             game.Start();
-
-            Console.ReadKey();
-            //args.Max(x => x.Length);
         }
     }
 
@@ -57,7 +54,7 @@ namespace Task3
             Console.WriteLine("? - help");
         }
 
-        public int GetUserMove()
+        private int GetUserMove()
         {
             int userMove;
             while (true)
@@ -74,7 +71,7 @@ namespace Task3
             return userMove - 1;
         }
 
-        public int GenerateComputerMove()
+        private int GenerateComputerMove()
         {
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
             {
